@@ -1,2 +1,4 @@
-package: mRanker
-import: []
+package: main
+import:
+  - package: github.com/gorilla/mux
+
