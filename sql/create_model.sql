@@ -14,10 +14,10 @@ CREATE TABLE albums (
   CONSTRAINT albums_constraint UNIQUE (artist_id, name, year)
 );
 
-CREATE OR REPLACE FUNCTION insert_album(year int, name text, artist text) RETURNS void AS $$
+CREATE OR REPLACE FUNCTION insert_album(year int, name text, artist text) RETURNS integer AS $$
   INSERT INTO albums (artist_id, year, name) VALUES (
     (SELECT artist_id FROM artists WHERE name=$3),
     $1,
     $2
-  );
+  ) RETURNING album_id;
 $$ LANGUAGE SQL;
