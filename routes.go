@@ -18,14 +18,19 @@ func displayAlbums(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%3v | %20v | %20v\n", i.year, i.artist, i.name)
 	}
 }
+
 func addAlbum(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	artist := r.FormValue("artist")
+	ranking, err := strconv.Atoi(r.FormValue("rank"))
+	if err != nil {
+		log.Fatal("Could not add album: %v", err.Error())
+	}
 	year, err := strconv.Atoi(r.FormValue("year"))
 	if err != nil {
 		log.Fatal("Could not add album: %v", err.Error())
 	}
-	upsertAlbum(name, artist, year)
+	upsertAlbum(name, artist, year, ranking)
 }
 
 func addArtist(w http.ResponseWriter, r *http.Request) {
