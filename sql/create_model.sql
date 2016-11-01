@@ -16,13 +16,6 @@ CREATE TABLE albums (
   CONSTRAINT unique_ranking UNIQUE (ranking) DEFERRABLE
 );
 
-
-/* Cas à gérer
-- insertion avec données non existantes et ranking > max -> donner un ranking min(new_ranking, max(rankings) +1) et pas de modifs
-- insertion avec données non existantes et ranking < max -> donner le bon ranking et tout décaler
-- update avec même ranking -> on fait rien, pas de modif des rankings
-- update avec différent ranking -> pareil qu'une insertion avec conclit
-*/
 CREATE OR REPLACE FUNCTION insert_album(year int, name text, artist text, ranking int) RETURNS void AS $$
   SET CONSTRAINTS unique_ranking DEFERRED;
   /* Move all rankings up to prepare the insertion */
