@@ -25,7 +25,7 @@ func initDB() {
 
 func listAlbums() []Album {
 	var albums []Album
-	rows, err := db.Query("SELECT albums.name as album, year, artists.name AS artist, ranking FROM albums JOIN artists ON artists.artist_id=albums.artist_id ORDER BY year;")
+	rows, err := db.Query("SELECT albums.name as album, year, artists.name AS artist, ranking FROM albums JOIN artists ON artists.artist_id=albums.artist_id ORDER BY year ASC, ranking ASC;")
 	if err != nil {
 		log.Fatal("Error while querying the DB: %v", err.Error())
 	}
@@ -43,11 +43,34 @@ func listAlbums() []Album {
 	return albums
 }
 
-func upsertAlbum(name string, artist string, year int, ranking int) {
-	var lastInsertedId int
-	err := db.QueryRow("SELECT * FROM insert_album($1, $2, $3, $4);", year, name, artist, ranking).Scan(&lastInsertedId)
+func upsertAlbum(name string, artist string, year int, newRanking int) {
+
+	// Check whether this is an insertion or a ranking update
+	rows, err := db.Query("SELECT albums.album_id as id, albums.ranking as rank FROM albums JOIN artists ON artists.artist_id=albums.artist_id WHERE artists.name=$1 AND albums.name=$2 and year=$3;", artist, name, year)
 	if err != nil {
-		log.Fatal("Could not upsert album: ", err.Error())
+		log.Fatal("Error while querying the DB: %v", err.Error())
+	}
+	for rows.Next() {
+		var rank int
+		var id int
+		err = rows.Scan(&id, &rank)
+		if err != nil {
+			log.Fatal("Error while parsing row: %v", err.Error())
+		}
+
+		// Ranking update
+		if newRanking != rank {
+			_, err := db.Query("SELECT * FROM update_ranking($1, $2, $3)", id, rank, newRanking)
+			if err != nil {
+				log.Fatal("Could not update ranking: %v", err.Error())
+			}
+		}
+		return
+	}
+	// New insertion
+	_, err = db.Query("SELECT * FROM insert_album($1, $2, $3, $4);", year, name, artist, newRanking)
+	if err != nil {
+		log.Fatal("Could not insert album: ", err.Error())
 	}
 }
 

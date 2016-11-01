@@ -1,5 +1,5 @@
-CREATE SEQUENCE album_id_seq;
 CREATE SEQUENCE artist_id_seq;
+CREATE SEQUENCE album_id_seq;
 
 CREATE TABLE artists (
   artist_id integer PRIMARY KEY NOT NULL DEFAULT NEXTVAL('artist_id_seq'),
@@ -12,15 +12,52 @@ CREATE TABLE albums (
   artist_id integer NOT NULL REFERENCES artists (artist_id),
   year integer NOT NULL,
   ranking integer NOT NULL,
-  CONSTRAINT albums_constraint UNIQUE (artist_id, name, year),
-  CONSTRAINT unique_ranking UNIQUE (year, ranking)
+  CONSTRAINT unique_album UNIQUE (artist_id, name, year),
+  CONSTRAINT unique_ranking UNIQUE (ranking) DEFERRABLE
 );
 
-CREATE OR REPLACE FUNCTION insert_album(year int, name text, artist text, ranking int) RETURNS integer AS $$
-  INSERT INTO albums (artist_id, year, name, ranking) VALUES (
+
+/* Cas à gérer
+- insertion avec données non existantes et ranking > max -> donner un ranking min(new_ranking, max(rankings) +1) et pas de modifs
+- insertion avec données non existantes et ranking < max -> donner le bon ranking et tout décaler
+- update avec même ranking -> on fait rien, pas de modif des rankings
+- update avec différent ranking -> pareil qu'une insertion avec conclit
+*/
+CREATE OR REPLACE FUNCTION insert_album(year int, name text, artist text, ranking int) RETURNS void AS $$
+  SET CONSTRAINTS unique_ranking DEFERRED;
+  /* Move all rankings up to prepare the insertion */
+  UPDATE albums
+    SET ranking = ranking + 1
+    WHERE ranking >= $4;
+  INSERT INTO albums (artist_id, year, name, ranking)
+  VALUES (
     (SELECT artist_id FROM artists WHERE name=$3),
     $1,
     $2,
     $4
-  ) RETURNING album_id;
+  );
 $$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION update_ranking(album_id int, old_ranking int, new_ranking int) RETURNS void AS $$
+BEGIN
+  SET CONSTRAINTS unique_ranking DEFERRED;
+  IF $3 < $2 THEN
+    /* Ranking decreased, increase all other rankings */
+    UPDATE albums
+      SET ranking = ranking + 1
+      WHERE ranking >= $3
+      AND ranking <= $2;
+  ELSIF $2 < $3 THEN
+    /* Ranking increased, decrease all other rankings */
+    UPDATE albums
+      SET ranking = ranking - 1
+      WHERE ranking >= $2
+      AND ranking <= $3;
+  END IF;
+  /* Give the new ranking to the album specified by album_id */
+  UPDATE albums
+    SET ranking = $3
+    WHERE albums.album_id = $1;
+END
+$$ LANGUAGE PLPGSQL;

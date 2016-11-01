@@ -11,11 +11,11 @@ import (
 
 func displayAlbums(w http.ResponseWriter, r *http.Request) {
 	albums := listAlbums()
-	fmt.Fprintf(w, "%3v | %20v | %20v\n", "year", "artist", "album")
-	fmt.Fprintf(w, "--------------------------------------------------\n")
+	fmt.Fprintf(w, "%4v | %3v | %20v | %25v\n", "rank", "year", "artist", "album")
+	fmt.Fprintf(w, "--------------------------------------------------------------\n")
 
 	for _, i := range albums {
-		fmt.Fprintf(w, "%3v | %20v | %20v\n", i.year, i.artist, i.name)
+		fmt.Fprintf(w, "%4v | %3v | %20v | %25v\n", i.ranking, i.year, i.artist, i.name)
 	}
 }
 
