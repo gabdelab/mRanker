@@ -25,7 +25,7 @@ func initDB() {
 
 func listAlbums() []Album {
 	var albums []Album
-	rows, err := db.Query("SELECT albums.name as album, year, artists.name AS artist, ranking FROM albums JOIN artists ON artists.artist_id=albums.artist_id ORDER BY year ASC, ranking ASC;")
+	rows, err := db.Query("SELECT albums.name as album, year, artists.name AS artist, ranking FROM albums JOIN artists ON artists.artist_id=albums.artist_id ORDER BY ranking ASC;")
 	if err != nil {
 		log.Fatal("Error while querying the DB: %v", err.Error())
 	}
