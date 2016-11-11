@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -24,11 +23,13 @@ func addAlbum(w http.ResponseWriter, r *http.Request) {
 	artist := r.FormValue("artist")
 	ranking, err := strconv.Atoi(r.FormValue("rank"))
 	if err != nil {
-		log.Fatal("Could not add album: %v", err.Error())
+		fmt.Println("Could not add album: %v", err.Error())
+		return
 	}
 	year, err := strconv.Atoi(r.FormValue("year"))
 	if err != nil {
-		log.Fatal("Could not add album: %v", err.Error())
+		fmt.Println("Could not add album: %v", err.Error())
+		return
 	}
 	upsertAlbum(name, artist, year, ranking)
 }
