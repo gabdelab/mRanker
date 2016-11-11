@@ -3,8 +3,8 @@ package main
 import (
 	"database/sql"
 	"fmt"
-
 	_ "github.com/lib/pq"
+	"log"
 )
 
 type Album struct {
@@ -17,11 +17,17 @@ type Album struct {
 func initDB() {
 	pgdb, err := sql.Open("postgres", "user=gabrieldelaboulaye host=localhost dbname=mrankerdb sslmode=disable")
 	if err != nil {
-		fmt.Println("Could not connect to DB: %v", err.Error())
-		return
-	} else {
-		db = pgdb
+		log.Fatal("Could not connect to DB: %v", err.Error())
 	}
+	db = pgdb
+
+	if err = db.Ping(); err != nil {
+		log.Fatal("Can't ping DB, is the PG server up ?")
+	}
+}
+
+func closeDB() {
+	db.Close()
 }
 
 func listAlbums() []Album {
