@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 
@@ -10,11 +11,10 @@ import (
 
 func displayAlbums(w http.ResponseWriter, r *http.Request) {
 	albums := listAlbums()
-	fmt.Fprintf(w, "%4v | %3v | %20v | %25v\n", "rank", "year", "artist", "album")
-	fmt.Fprintf(w, "--------------------------------------------------------------\n")
-
-	for _, i := range albums {
-		fmt.Fprintf(w, "%4v | %3v | %20v | %25v\n", i.ranking, i.year, i.artist, i.name)
+	fmt.Printf("Found %d albums\n", len(albums))
+	t, _ := template.ParseFiles("index.html")
+	if err := t.Execute(w, &albums); err != nil {
+		fmt.Println("Could not display albums: %v", err.Error())
 	}
 }
 

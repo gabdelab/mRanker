@@ -8,11 +8,13 @@ import (
 )
 
 type Album struct {
-	year    int
-	name    string
-	artist  string
-	ranking int
+	Year    int
+	Name    string
+	Artist  string
+	Ranking int
 }
+
+type Albums []Album
 
 func initDB() {
 	pgdb, err := sql.Open("postgres", "user=gabrieldelaboulaye host=localhost dbname=mrankerdb sslmode=disable")
@@ -30,8 +32,8 @@ func closeDB() {
 	db.Close()
 }
 
-func listAlbums() []Album {
-	var albums []Album
+func listAlbums() Albums {
+	var albums Albums
 	rows, err := db.Query("SELECT albums.name as album, year, artists.name AS artist, ranking FROM albums JOIN artists ON artists.artist_id=albums.artist_id ORDER BY ranking ASC;")
 	if err != nil {
 		fmt.Println("Error while querying the DB: %v", err.Error())
