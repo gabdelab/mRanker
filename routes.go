@@ -12,7 +12,7 @@ import (
 func displayAlbums(w http.ResponseWriter, r *http.Request) {
 	albums := listAlbums()
 	fmt.Printf("Found %d albums\n", len(albums))
-	t, _ := template.ParseFiles("index.html")
+	t, _ := template.ParseFiles("templates/index.html")
 	if err := t.Execute(w, &albums); err != nil {
 		fmt.Println("Could not display albums: %v", err.Error())
 	}

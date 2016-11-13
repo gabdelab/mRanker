@@ -14,6 +14,7 @@ func main() {
 	initDB()
 	defer db.Close()
 	router := addRoutes()
+	router.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(http.Dir("static/"))))
 	fmt.Println("Server successfully started!")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
