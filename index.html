@@ -1,11 +1,21 @@
-<h1>Results</h1>
-{{range .}}
-    <div>
-    {{.Ranking}}
-    {{.Name}}
-    {{.Artist}}
-    {{.Year}}
-    </div>
-{{end}}
-<h1>Done</h1>
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Liste des résultats</title>
+    </head>
 
+    <body>
+        <h1>Results</h1>
+        <ol>
+        {{range .}}
+            <li>
+                <div>
+                    {{.Name}}
+                    {{.Artist}}
+                    {{.Year}}
+                </div>
+            </li>
+        {{end}}
+        </ol>
+    </body>
+</html>
