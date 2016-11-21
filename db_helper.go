@@ -33,9 +33,9 @@ func closeDB() {
 	db.Close()
 }
 
-func listAlbums() Albums {
+func queryAlbums(query string) Albums {
 	var albums Albums
-	rows, err := db.Query("SELECT albums.name as album, year, artists.name AS artist, ranking FROM albums JOIN artists ON artists.artist_id=albums.artist_id ORDER BY ranking ASC;")
+	rows, err := db.Query(query)
 	if err != nil {
 		fmt.Println("Error while querying the DB: %v", err.Error())
 		return nil
@@ -45,48 +45,47 @@ func listAlbums() Albums {
 		var year int
 		var artist string
 		var ranking int
-		err = rows.Scan(&album, &year, &artist, &ranking)
+		var allRanking int
+		err = rows.Scan(&album, &year, &artist, &ranking, &allRanking)
 		if err != nil {
 			fmt.Println("Error while parsing row: %v", err.Error())
 			return nil
 		}
-		albums = append(albums, Album{year, album, artist, ranking, ranking})
+		albums = append(albums, Album{year, album, artist, ranking, allRanking})
 	}
+
 	return albums
 }
 
+func listAlbums() Albums {
+	return queryAlbums(`SELECT albums.name AS album,
+                             year,
+                             artists.name AS artist,
+                             ranking,
+                             ranking AS allRanking
+                      FROM albums JOIN artists
+                      ON artists.artist_id=albums.artist_id
+                      ORDER BY ranking ASC;`)
+}
+
 func listYearAlbums(year int) Albums {
-	var albums Albums
-	rows, err := db.Query(`SELECT albums.name as album, artists.name
-                         AS artist, ranking
-                         FROM albums JOIN artists
-                         ON artists.artist_id=albums.artist_id
-                         WHERE year=$1
-                         ORDER BY ranking ASC;`, year)
-	if err != nil {
-		fmt.Println("Error while querying the DB: %v", err.Error())
-		return nil
-	}
-	i := 1
-	for rows.Next() {
-		var album string
-		var artist string
-		var ranking int
-		err = rows.Scan(&album, &artist, &ranking)
-		if err != nil {
-			fmt.Println("Error while parsing row: %v", err.Error())
-			return nil
-		}
-		albums = append(albums, Album{year, album, artist, i, ranking})
-		i++
-	}
-	return albums
+	return queryAlbums(fmt.Sprintf(`SELECT albums.name AS album,
+                                         year,
+                                         artists.name AS artist,
+                                         rank() OVER (ORDER BY ranking ASC) AS ranking,
+                                         ranking as allRanking
+                                  FROM albums JOIN artists
+                                  ON artists.artist_id=albums.artist_id
+                                  WHERE year=%d;`, year))
 }
 
 func upsertAlbum(name string, artist string, year int, newRanking int) {
 
 	// Check whether this is an insertion or a ranking update
-	rows, err := db.Query("SELECT albums.album_id as id, albums.ranking as rank FROM albums JOIN artists ON artists.artist_id=albums.artist_id WHERE artists.name=$1 AND albums.name=$2 and year=$3;", artist, name, year)
+	rows, err := db.Query(`SELECT albums.album_id as id, albums.ranking AS rank
+                         FROM albums JOIN artists
+                         ON artists.artist_id=albums.artist_id
+                         WHERE artists.name=$1 AND albums.name=$2 AND year=$3;`, artist, name, year)
 	if err != nil {
 		fmt.Println("Error while querying the DB: %v", err.Error())
 		return
