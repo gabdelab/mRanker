@@ -1,9 +1,10 @@
 ol {
   display: table-cell;
-  width: 400px;
+  width: 600px;
   padding: 10px;
 }
 
 body {
+  padding-left: 100px;
   background-color: white;
 }

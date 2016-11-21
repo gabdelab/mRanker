@@ -8,10 +8,11 @@ import (
 )
 
 type Album struct {
-	Year    int
-	Name    string
-	Artist  string
-	Ranking int
+	Year       int
+	Name       string
+	Artist     string
+	Ranking    int
+	AllRanking int
 }
 
 type Albums []Album
@@ -49,7 +50,35 @@ func listAlbums() Albums {
 			fmt.Println("Error while parsing row: %v", err.Error())
 			return nil
 		}
-		albums = append(albums, Album{year, album, artist, ranking})
+		albums = append(albums, Album{year, album, artist, ranking, ranking})
+	}
+	return albums
+}
+
+func listYearAlbums(year int) Albums {
+	var albums Albums
+	rows, err := db.Query(`SELECT albums.name as album, artists.name
+                         AS artist, ranking
+                         FROM albums JOIN artists
+                         ON artists.artist_id=albums.artist_id
+                         WHERE year=$1
+                         ORDER BY ranking ASC;`, year)
+	if err != nil {
+		fmt.Println("Error while querying the DB: %v", err.Error())
+		return nil
+	}
+	i := 1
+	for rows.Next() {
+		var album string
+		var artist string
+		var ranking int
+		err = rows.Scan(&album, &artist, &ranking)
+		if err != nil {
+			fmt.Println("Error while parsing row: %v", err.Error())
+			return nil
+		}
+		albums = append(albums, Album{year, album, artist, i, ranking})
+		i++
 	}
 	return albums
 }
