@@ -10,21 +10,17 @@ import (
 )
 
 func displayAlbums(w http.ResponseWriter, r *http.Request) {
-	albums := listAlbums()
-	fmt.Printf("Found %d albums\n", len(albums))
-	t, _ := template.ParseFiles("templates/index.html")
-	if err := t.Execute(w, &albums); err != nil {
-		fmt.Println("Could not display albums: %v", err.Error())
-	}
-}
-
-func displayYearAlbums(w http.ResponseWriter, r *http.Request) {
-	year, err := strconv.Atoi(r.URL.Query().Get("year"))
+	var albums Albums
+	var templateFile string
+	year, err := strconv.Atoi(r.FormValue("year"))
 	if err != nil {
-		fmt.Println("Could not display albums: %v", err.Error())
+		albums = listAlbums()
+		templateFile = "templates/index.html"
+	} else {
+		albums = listYearAlbums(year)
+		templateFile = "templates/year_index.html"
 	}
-	albums := listYearAlbums(year)
-	t, _ := template.ParseFiles("templates/year_index.html")
+	t, _ := template.ParseFiles(templateFile)
 	if err := t.Execute(w, &albums); err != nil {
 		fmt.Println("Could not display albums: %v", err.Error())
 	}
@@ -54,7 +50,6 @@ func addArtist(w http.ResponseWriter, r *http.Request) {
 func addRoutes() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", displayAlbums).Methods("GET")
-	router.HandleFunc("/year", displayYearAlbums).Methods("GET")
 	router.HandleFunc("/album/", addAlbum).Methods("POST")
 	router.HandleFunc("/artist/", addArtist).Methods("POST")
 	return router
