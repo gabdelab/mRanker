@@ -26,5 +26,24 @@
                 {{end}}
             </tbody>
         </table>
+
+        <form action="http://localhost:8080/artist/" method="post">
+            <p>
+                Nouvel artiste :<br>
+                Nom<input type="text" name="name"><br>
+                <input type="submit" value="Send">
+            </p>
+        </form>
+
+        <form action="http://localhost:8080/album/" method="post">
+            <p>
+                Nouvel album :<br>
+                Nom    <input type="text" name="name"><br>
+                Artiste<input type="text" name="artist"><br>
+                Année  <input type="text" name="year"><br>
+                Rang  <input type="text" name="rank"><br>
+                <input type="submit" value="Send">
+            </p>
+        </form>
     </body>
 </html>

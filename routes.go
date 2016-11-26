@@ -40,11 +40,13 @@ func addAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	upsertAlbum(name, artist, year, ranking)
+	http.Redirect(w, r, "http://localhost:8080/", 301)
 }
 
 func addArtist(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	insertArtist(name)
+	http.Redirect(w, r, "http://localhost:8080/", 301)
 }
 
 func addRoutes() *mux.Router {
