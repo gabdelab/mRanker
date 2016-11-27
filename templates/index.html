@@ -27,6 +27,35 @@
             </tbody>
         </table>
 
+        <ul class="sortable" id="sortable">
+            {{ range .Albums }}
+                <li name='{{.Name}}' artist='{{.Artist}}' year='{{.Year}}'>{{.}}</li>
+            {{ end }}
+        </ul>
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script>
+            $(document).ready(function() {
+              $(".sortable").sortable({
+                start: function( event, ui ) {
+                  console.log(ui.item.index());
+                },
+                stop: function(event, ui) {
+                  $rank = ui.item.index() + 1;
+                  $name = ui.item.attr('name');
+                  $artist = ui.item.attr('artist');
+                  $year = ui.item.attr('year');
+                  // POST to /albums with the given values
+                  $.post('http://localhost:8080/album/',
+                         { name: $name, year: $year, artist: $artist, rank: $rank},
+                         function(data){
+                            location.reload();
+                        });
+                },
+              }).disableSelection();
+            });
+        </script>
+
         <form action="http://localhost:8080/artist/" method="post">
             <p>
                 Nouvel artiste :<br>
