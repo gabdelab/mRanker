@@ -16,7 +16,7 @@
                 </tr>
             </thead>
             <tbody>
-                {{range .}}
+                {{range .Albums}}
                     <tr>
                         <td>{{.Ranking}}</td>
                         <td>{{.Name}}</td>
@@ -35,11 +35,15 @@
             </p>
         </form>
 
-        <form action="http://localhost:8080/album/" method="post">
+        <form action="http://localhost:8080/album/" method="post" id="add_album_form">
             <p>
                 Nouvel album :<br>
                 Nom    <input type="text" name="name"><br>
-                Artiste<input type="text" name="artist"><br>
+                Artiste <select name="artist" form="add_album_form">
+                            {{range .Artists}}
+                                <option value={{.}}>{{.}}</option>
+                            {{end}}
+                        </select><br>
                 Année  <input type="text" name="year"><br>
                 Rang  <input type="text" name="rank"><br>
                 <input type="submit" value="Send">

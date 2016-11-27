@@ -7,15 +7,24 @@ import (
 	"log"
 )
 
+type Results struct {
+	Albums  Albums
+	Artists Artists
+}
+
 type Album struct {
 	Year       int
 	Name       string
-	Artist     string
+	Artist     Artist
 	Ranking    int
 	AllRanking int
 }
 
+type Artist string
+
 type Albums []Album
+
+type Artists []Artist
 
 func initDB() {
 	pgdb, err := sql.Open("postgres", "user=gabrieldelaboulaye host=localhost dbname=mrankerdb sslmode=disable")
@@ -33,6 +42,24 @@ func closeDB() {
 	db.Close()
 }
 
+func listArtists() Artists {
+	var artists Artists
+	rows, err := db.Query(`SELECT name FROM artists;`)
+	if err != nil {
+		fmt.Println("Error while querying the DB: %v", err.Error())
+		return nil
+	}
+	for rows.Next() {
+		var name string
+		if err = rows.Scan(&name); err != nil {
+			fmt.Println("Error while parsing row: %v", err.Error())
+			return nil
+		}
+		artists = append(artists, Artist(name))
+	}
+	return artists
+}
+
 func queryAlbums(query string) Albums {
 	var albums Albums
 	rows, err := db.Query(query)
@@ -43,7 +70,7 @@ func queryAlbums(query string) Albums {
 	for rows.Next() {
 		var album string
 		var year int
-		var artist string
+		var artist Artist
 		var ranking int
 		var allRanking int
 		err = rows.Scan(&album, &year, &artist, &ranking, &allRanking)

@@ -11,6 +11,7 @@ import (
 
 func displayAlbums(w http.ResponseWriter, r *http.Request) {
 	var albums Albums
+	var artists Artists
 	var templateFile string
 	year, err := strconv.Atoi(r.FormValue("year"))
 	if err != nil {
@@ -20,8 +21,11 @@ func displayAlbums(w http.ResponseWriter, r *http.Request) {
 		albums = listYearAlbums(year)
 		templateFile = "templates/year_index.html"
 	}
+	artists = listArtists()
 	t, _ := template.ParseFiles(templateFile)
-	if err := t.Execute(w, &albums); err != nil {
+
+	results := Results{Artists: artists, Albums: albums}
+	if err := t.Execute(w, &results); err != nil {
 		fmt.Println("Could not display albums: %v", err.Error())
 	}
 }
