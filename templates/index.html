@@ -6,77 +6,76 @@
     </head>
 
     <body>
-        <table id="results">
-            <thead>
-                <tr>
-                    <th scope="col" id="rank">Rank</th>
-                    <th scope="col" id="name">Name</th>
-                    <th scope="col" id="artist">Artist</th>
-                    <th scope="col" id="year">Year</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .Albums}}
-                    <tr>
-                        <td>{{.Ranking}}</td>
-                        <td>{{.Name}}</td>
-                        <td>{{.Artist}}</td>
-                        <td>{{.Year}}</td>
-                    </tr>
-                {{end}}
-            </tbody>
-        </table>
-
-        <ul class="sortable" id="sortable">
-            {{ range .Albums }}
-                <li name='{{.Name}}' artist='{{.Artist}}' year='{{.Year}}'>{{.}}</li>
-            {{ end }}
-        </ul>
-        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-        <script>
-            $(document).ready(function() {
-              $(".sortable").sortable({
-                start: function( event, ui ) {
-                  console.log(ui.item.index());
-                },
-                stop: function(event, ui) {
-                  $rank = ui.item.index() + 1;
-                  $name = ui.item.attr('name');
-                  $artist = ui.item.attr('artist');
-                  $year = ui.item.attr('year');
-                  // POST to /albums with the given values
-                  $.post('http://localhost:8080/album/',
-                         { name: $name, year: $year, artist: $artist, rank: $rank},
-                         function(data){
-                            location.reload();
-                        });
-                },
-              }).disableSelection();
-            });
-        </script>
-
-        <form action="http://localhost:8080/artist/" method="post">
-            <p>
-                Nouvel artiste :<br>
-                Nom<input type="text" name="name"><br>
-                <input type="submit" value="Send">
-            </p>
-        </form>
-
-        <form action="http://localhost:8080/album/" method="post" id="add_album_form">
-            <p>
-                Nouvel album :<br>
-                Nom    <input type="text" name="name"><br>
-                Artiste <select name="artist" form="add_album_form">
-                            {{range .Artists}}
-                                <option value={{.}}>{{.}}</option>
-                            {{end}}
-                        </select><br>
-                Année  <input type="text" name="year"><br>
-                Rang  <input type="text" name="rank"><br>
-                <input type="submit" value="Send">
-            </p>
-        </form>
+        <div id="results">
+            <ol class="sortable" id="sortable">
+                {{ range .Albums }}
+                    <li name='{{.Name}}' artist='{{.Artist}}' year='{{.Year}}'>
+                        <a><strong>{{.Name}}</strong>
+                        {{.Artist}} - {{.Year}}</a>
+                    </li>
+                {{ end }}
+            </ol>
+            <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+            <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+            <script>
+                $(document).ready(function() {
+                  $(".sortable").sortable({
+                    start: function( event, ui ) {
+                      console.log(ui.item.index());
+                    },
+                    stop: function(event, ui) {
+                      $rank = ui.item.index() + 1;
+                      $name = ui.item.attr('name');
+                      $artist = ui.item.attr('artist');
+                      $year = ui.item.attr('year');
+                      // POST to /albums with the given values
+                      $.post('http://localhost:8080/album/',
+                             { name: $name, year: $year, artist: $artist, rank: $rank},
+                             function(data){
+                                location.reload();
+                            });
+                    },
+                  }).disableSelection();
+                });
+            </script>
+        </div>
+        <br>
+        <div class=newentry>
+            <div class="newentry-heading">Nouvel artiste</div>
+            <form action="http://localhost:8080/artist/" method="post">
+                <label for="name">
+                    <span>Nom <span class="required">*</span></span>
+                    <input type="text" class="input-field" name="name" value="" />
+                </label>
+                <label><span>&nbsp;</span><input type="submit" value="Submit" /></label>
+            </form>
+        </div>
+        <br>
+        <div class=newentry>
+            <div class=newentry-heading>Nouvel album</div>
+            <form action="http://localhost:8080/album/" method="post" id="add_album_form">
+                <label for="name">
+                    <span>Nom <span class="required">*</span></span>
+                    <input type=text class=input-field name=name value="" />
+                </label>
+                <label for="artist">
+                    <span>Artiste <span class="required">*</span></span>
+                    <select name="artist" form=add_album_form class="select-field">
+                        {{range .Artists}}
+                            <option value={{.}}>{{.}}</option>
+                        {{end}}
+                    </select>
+                </label>
+                <label for="year">
+                    <span>Année <span class="required">*</span></span>
+                    <input type=text class=input-field name=year value="" />
+                </label>
+                <label for="rank">
+                    <span>Rang <span class="required">*</span></span>
+                    <input type=text class=input-field name=rank value="" />
+                </label>
+                <label><span>&nbsp;</span><input type="submit" value="Submit" /></label>
+            </form>
+        </div>
     </body>
 </html>

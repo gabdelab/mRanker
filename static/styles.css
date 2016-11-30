@@ -1,10 +1,118 @@
-ol {
-  display: table-cell;
-  width: 600px;
-  padding: 10px;
-}
-
 body {
   padding-left: 100px;
   background-color: white;
+}
+
+#results {
+  width:600px;
+  font-family:Georgia, Times, serif;
+  font-size:15px;
+}
+
+#results ol {
+  display: table-cell;
+  width: 600px;
+  padding: 20px;
+}
+
+#results ol li {
+}
+
+#results ol li a {
+  display:block;
+  text-decoration:none;
+  color:#000000;
+  background-color:#FFFFFF;
+  line-height:30px;
+  border-bottom-style:solid;
+  border-bottom-width:1px;
+  border-bottom-color:#CCCCCC;
+  padding-left:10px;
+  cursor:pointer;
+}
+
+#results ol li a:hover {
+  color:blue;
+  background-repeat:repeat-x;
+}
+
+#results ol li a strong {
+  margin-right:10px;
+}
+
+newentry{
+    max-width: 200px;
+    padding: 20px 12px 10px 20px;
+    font: 13px Arial, Helvetica, sans-serif;
+}
+
+.newentry-heading{
+    font-weight: bold;
+    font-style: italic;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+    font-size: 15px;
+    padding-bottom: 3px;
+}
+
+.newentry label{
+    display: block;
+    margin: 0px 0px 15px 0px;
+}
+
+.newentry label > span{
+    width: 100px;
+    font-weight: bold;
+    float: left;
+    padding-top: 8px;
+    padding-right: 5px;
+}
+
+.newentry span.required{
+    color:red;
+}
+
+.newentry input.input-field,
+.newentry .select-field{
+    width: 47%;
+
+}
+
+.newentry input.input-field,
+.newentry .select-field{
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    border: 1px solid #C2C2C2;
+    box-shadow: 1px 1px 4px #EBEBEB;
+    -moz-box-shadow: 1px 1px 4px #EBEBEB;
+    -webkit-box-shadow: 1px 1px 4px #EBEBEB;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    padding: 7px;
+    outline: none;
+}
+
+.newentry .input-field:focus,
+.newentry .select-field:focus{
+    border: 1px solid #0C0;
+}
+
+.newentry input[type=submit]{
+    border: none;
+    padding: 8px 15px 8px 15px;
+    background: #FF8500;
+    color: #fff;
+    box-shadow: 1px 1px 4px #DADADA;
+    -moz-box-shadow: 1px 1px 4px #DADADA;
+    -webkit-box-shadow: 1px 1px 4px #DADADA;
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+}
+
+.newentry input[type=submit]:hover{
+    background: #EA7B00;
+    color: #fff;
 }

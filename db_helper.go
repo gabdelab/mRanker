@@ -44,7 +44,7 @@ func closeDB() {
 
 func listArtists() Artists {
 	var artists Artists
-	rows, err := db.Query(`SELECT name FROM artists;`)
+	rows, err := db.Query(`SELECT name FROM artists ORDER BY name;`)
 	if err != nil {
 		fmt.Println("Error while querying the DB: %v", err.Error())
 		return nil
