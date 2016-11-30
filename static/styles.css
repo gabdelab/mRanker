@@ -1,10 +1,25 @@
+* {margin: 0; padding: 0;}
+
 body {
-  padding-left: 100px;
   background-color: white;
 }
 
+#mainpage {
+  padding-left:20px;
+  height: 100%;
+  width: 100%;
+}
+
+#results, #edit {
+  padding: 10px;
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+  vertical-align: top;
+}
+
 #results {
-  width:600px;
+  width:45%;
   font-family:Georgia, Times, serif;
   font-size:15px;
 }
@@ -12,7 +27,6 @@ body {
 #results ol {
   display: table-cell;
   width: 600px;
-  padding: 20px;
 }
 
 #results ol li {
@@ -40,13 +54,20 @@ body {
   margin-right:10px;
 }
 
-newentry{
-    max-width: 200px;
-    padding: 20px 12px 10px 20px;
-    font: 13px Arial, Helvetica, sans-serif;
+#edit{
+  width: 45%;
+  font-size:15px;
+}
+
+#newentry{
+    width: 100%;
+    max-width: 100%;
+    padding: 0px 0px 10px 20px;
+    font: 15px Arial, Helvetica, sans-serif;
 }
 
 .newentry-heading{
+    width: 100%;
     font-weight: bold;
     font-style: italic;
     border-bottom: 2px solid #ddd;
@@ -61,7 +82,7 @@ newentry{
 }
 
 .newentry label > span{
-    width: 100px;
+    width: 30%;
     font-weight: bold;
     float: left;
     padding-top: 8px;
@@ -74,7 +95,7 @@ newentry{
 
 .newentry input.input-field,
 .newentry .select-field{
-    width: 47%;
+    width: 65%;
 
 }
 
