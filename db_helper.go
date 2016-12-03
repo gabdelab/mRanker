@@ -10,15 +10,18 @@ import (
 type Results struct {
 	Albums  Albums
 	Artists Artists
+	Year    Year
 }
 
 type Album struct {
-	Year       int
+	Year       Year
 	Name       string
 	Artist     Artist
 	Ranking    int
 	AllRanking int
 }
+
+type Year int
 
 type Artist string
 
@@ -78,7 +81,7 @@ func queryAlbums(query string) Albums {
 			fmt.Println("Error while parsing row: %v", err.Error())
 			return nil
 		}
-		albums = append(albums, Album{year, album, artist, ranking, allRanking})
+		albums = append(albums, Album{Year(year), album, artist, ranking, allRanking})
 	}
 
 	return albums

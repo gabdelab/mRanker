@@ -24,7 +24,7 @@ func displayAlbums(w http.ResponseWriter, r *http.Request) {
 	artists = listArtists()
 	t, _ := template.ParseFiles(templateFile)
 
-	results := Results{Artists: artists, Albums: albums}
+	results := Results{Artists: artists, Albums: albums, Year: Year(year)}
 	if err := t.Execute(w, &results); err != nil {
 		fmt.Println("Could not display albums: %v", err.Error())
 	}

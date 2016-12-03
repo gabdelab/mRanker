@@ -2,29 +2,61 @@
 <html>
     <head>
         <link rel="stylesheet" type="text/css" href="styles.css">
-        <title>Liste des résultats</title>
+        <title>Liste des résultats pour {{.Year}}</title>
     </head>
 
     <body>
-        <table id="results">
-            <thead>
-                <tr>
-                    <th scope="col" id="rank">Rank</th>
-                    <th scope="col" id="name">Name</th>
-                    <th scope="col" id="artist">Artist</th>
-                    <th scope="col" id="all_rank">Global rank</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .}}
-                    <tr>
-                        <td>{{.Ranking}}</td>
-                        <td>{{.Name}}</td>
-                        <td>{{.Artist}}</td>
-                        <td>{{.AllRanking}}</td>
-                    </tr>
-                {{end}}
-            </tbody>
-        </table>
+        <div id=mainpage>
+
+            <div id=results>
+                <ol class="sortable" id="sortable">
+                    {{ range .Albums }}
+                        <li name={{.Name}} artist={{.Artist}} year={{.Year}} allRanking='{{.AllRanking}}'>
+                            <a><strong>{{.Name}}</strong>
+                            {{.Artist}} - {{.AllRanking}}</a>
+                        </li>
+                    {{ end }}
+                </ol>
+            </div>
+
+            <div id=edit>
+                <div class=newentry>
+                    <div class="newentry-heading">Nouvel artiste</div>
+                    <form action="http://localhost:8080/artist/" method="post">
+                        <label for="name">
+                            <span>Nom <span class="required">*</span></span>
+                            <input type="text" class="input-field" name="name" value="" />
+                        </label>
+                        <label><span>&nbsp;</span><input type="submit" value="Submit" /></label>
+                    </form>
+                </div>
+                <br>
+                <div class=newentry>
+                    <div class=newentry-heading>Nouvel album</div>
+                    <form action="http://localhost:8080/album/" method="post" id="add_album_form">
+                        <label for="name">
+                            <span>Nom <span class="required">*</span></span>
+                            <input type=text class=input-field name=name value="" />
+                        </label>
+                        <label for="artist">
+                            <span>Artiste <span class="required">*</span></span>
+                            <select name="artist" form=add_album_form class="select-field">
+                                {{range .Artists}}
+                                    <option value={{.}}>{{.}}</option>
+                                {{end}}
+                            </select>
+                        </label>
+                        <label for="year">
+                        <input type=hidden class=input-field name=year value={{.Year}} />
+                        </label>
+                        <label for="rank">
+                            <span>Rang <span class="required">*</span></span>
+                            <input type=text class=input-field name=rank value="" />
+                        </label>
+                        <label><span>&nbsp;</span><input type="submit" value="Submit" /></label>
+                    </form>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
