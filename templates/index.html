@@ -32,7 +32,7 @@
                           $year = ui.item.attr('year');
                           // POST to /albums with the given values
                           $.post('http://localhost:8080/album/',
-                                 { name: $name, year: $year, artist: $artist, rank: $rank},
+                                 { name: $name, year: $year, artist: $artist, rank: $rank, year_rank: 0},
                                  function(data){
                                     location.reload();
                                 });

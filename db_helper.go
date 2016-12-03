@@ -102,17 +102,20 @@ func listYearAlbums(year int) Albums {
 	return queryAlbums(fmt.Sprintf(`SELECT albums.name AS album,
                                          year,
                                          artists.name AS artist,
-                                         rank() OVER (ORDER BY ranking ASC) AS ranking,
+                                         rank() OVER (ORDER BY year_ranking ASC) AS ranking,
                                          ranking as allRanking
                                   FROM albums JOIN artists
                                   ON artists.artist_id=albums.artist_id
                                   WHERE year=%d;`, year))
 }
 
-func upsertAlbum(name string, artist string, year int, newRanking int) {
+func upsertAlbum(name string, artist string, year int, newRanking int, newYearRanking int) {
 
 	// Check whether this is an insertion or a ranking update
-	rows, err := db.Query(`SELECT albums.album_id as id, albums.ranking AS rank
+	rows, err := db.Query(`SELECT
+												 	 albums.album_id as id,
+												 	 albums.ranking AS rank,
+												 	 albums.year_ranking AS yearRank
                          FROM albums JOIN artists
                          ON artists.artist_id=albums.artist_id
                          WHERE artists.name=$1 AND albums.name=$2 AND year=$3;`, artist, name, year)
@@ -122,18 +125,27 @@ func upsertAlbum(name string, artist string, year int, newRanking int) {
 	}
 	for rows.Next() {
 		var rank int
+		var yearRank int
 		var id int
-		err = rows.Scan(&id, &rank)
+		err = rows.Scan(&id, &rank, &yearRank)
 		if err != nil {
 			fmt.Println("Error while parsing row: %v", err.Error())
 			return
 		}
 
 		// Ranking update
-		if newRanking != rank {
+		if newRanking != rank && newRanking > 0 {
 			_, err := db.Query("SELECT * FROM update_ranking($1, $2, $3)", id, rank, newRanking)
 			if err != nil {
 				fmt.Println("Could not update ranking: %v", err.Error())
+				return
+			}
+		}
+		// Ranking update
+		if newYearRanking != yearRank && newYearRanking > 0 {
+			_, err := db.Query("SELECT * FROM update_year_ranking($1, $2, $3)", id, yearRank, newYearRanking)
+			if err != nil {
+				fmt.Println("Could not update year ranking: %v", err.Error())
 				return
 			}
 		}

@@ -6,8 +6,8 @@
     </head>
 
     <body>
+        <h1>Meilleurs albums de {{.Year}}</h1>
         <div id=mainpage>
-
             <div id=results>
                 <ol class="sortable" id="sortable">
                     {{ range .Albums }}
@@ -17,6 +17,29 @@
                         </li>
                     {{ end }}
                 </ol>
+                <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+                <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+                <script>
+                    $(document).ready(function() {
+                      $(".sortable").sortable({
+                        start: function( event, ui ) {
+                          console.log(ui.item.index());
+                        },
+                        stop: function(event, ui) {
+                          $year_rank = ui.item.index() + 1;
+                          $name = ui.item.attr('name');
+                          $artist = ui.item.attr('artist');
+                          $year = ui.item.attr('year');
+                          // POST to /albums with the given values
+                          $.post('http://localhost:8080/album/',
+                                 { name: $name, year: $year, artist: $artist, rank: 0, year_rank: $year_rank},
+                                 function(data){
+                                    location.reload();
+                                });
+                        },
+                      }).disableSelection();
+                    });
+                </script>
             </div>
 
             <div id=edit>
