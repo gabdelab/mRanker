@@ -48,6 +48,7 @@ func closeDB() {
 func listArtists() Artists {
 	var artists Artists
 	rows, err := db.Query(`SELECT name FROM artists ORDER BY name;`)
+	defer rows.Close()
 	if err != nil {
 		fmt.Println("Error while querying the DB: %v", err.Error())
 		return nil
@@ -66,6 +67,7 @@ func listArtists() Artists {
 func queryAlbums(query string) Albums {
 	var albums Albums
 	rows, err := db.Query(query)
+	defer rows.Close()
 	if err != nil {
 		fmt.Println("Error while querying the DB: %v", err.Error())
 		return nil
@@ -119,6 +121,7 @@ func upsertAlbum(name string, artist string, year int, newRanking int, newYearRa
                          FROM albums JOIN artists
                          ON artists.artist_id=albums.artist_id
                          WHERE artists.name=$1 AND albums.name=$2 AND year=$3;`, artist, name, year)
+	defer rows.Close()
 	if err != nil {
 		fmt.Println("Error while querying the DB: %v", err.Error())
 		return
