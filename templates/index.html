@@ -12,8 +12,10 @@
                 <ol class="sortable" id="sortable">
                     {{ range .Albums }}
                         <li name='{{.Name}}' artist='{{.Artist}}' year='{{.Year}}'>
-                            <a><strong>{{.Name}}</strong>
-                            {{.Artist}} - {{.Year}}</a>
+                            <a href='http://localhost:8080?year={{.Year}}'>
+                                <strong>{{.Name}}</strong>{{.Artist}}
+                                <span style="float:right" >{{.Year}}</span>
+                            </a>
                         </li>
                     {{ end }}
                 </ol>
