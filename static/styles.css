@@ -18,10 +18,14 @@ body {
   vertical-align: top;
 }
 
-#results {
+#results, #back {
   width:45%;
   font-family:Georgia, Times, serif;
   font-size:15px;
+}
+
+#back {
+  font-weight: bold;
 }
 
 #results ol {
