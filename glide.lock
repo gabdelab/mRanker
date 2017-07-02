@@ -1,5 +1,5 @@
-hash: c5996579b57f79b2b5be89f468a5c0b22bd1458ef0a18fc3a1b35010c39d5c6e
-updated: 2016-10-02T17:33:56.589286945+02:00
+hash: d17db87c2b932f6aaa6550968a9263ce98deecf881dea86937ef53cc548221e1
+updated: 2017-07-02T21:25:30.231246226+02:00
 imports:
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
@@ -9,4 +9,6 @@ imports:
   version: 50761b0867bd1d9d069276790bcd4a3bccf2324a
   subpackages:
   - oid
-devImports: []
+- name: howett.net/plist
+  version: 2f847ea62b17703c861484a09f0e5841328a2cb9
+testImports: []

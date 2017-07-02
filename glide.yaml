@@ -2,3 +2,4 @@ package: main
 import:
   - package: github.com/gorilla/mux
   - package: github.com/lib/pq
+  - package: howett.net/plist
