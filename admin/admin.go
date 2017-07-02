@@ -17,7 +17,7 @@ func parseXML(filename string) {
 }
 
 func main() {
-	filename := flag.String("conf_file", "", "file path to iTunes XML")
+	filename := flag.String("itunes_xml", os.Getenv("ITUNES_XML_FILE"), "file path to iTunes XML")
 	flag.Parse()
 
 	parseXML(*filename)
