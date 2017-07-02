@@ -1,4 +1,4 @@
-package mRanker
+package main
 
 import (
 	"database/sql"
