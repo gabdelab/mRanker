@@ -21,11 +21,12 @@ const (
 )
 
 type Song struct {
-	Year      int    `plist:"Year"`
-	Name      string `plist:"Name"`
-	Album     string `plist:"Album"`
-	PlayCount int    `plist:"PlayCount"`
-	Artist    string `plist:"Artist"`
+	Year        int    `plist:"Year"`
+	Name        string `plist:"Name"`
+	Album       string `plist:"Album"`
+	PlayCount   int    `plist:"PlayCount"`
+	Artist      string `plist:"Artist"`
+	Compilation bool   `plist:"Compilation"`
 }
 
 type File struct {
@@ -51,17 +52,19 @@ func insertArtist(song Song) {
 		return
 	}
 	defer resp.Body.Close()
-	fmt.Println(resp.Status)
 }
 
 // call mRanker server to insert album
 func insertAlbum(song Song) {
+	if song.Compilation {
+		// Don't insert compilations
+		return
+	}
 	postURL := fmt.Sprintf("http://%s:%s/album/", HOST, PORT)
 	form := url.Values{}
 	form.Add("name", song.Album)
 	form.Add("artist", song.Artist)
 	form.Add("year", strconv.Itoa(song.Year))
-	// What should be the ranking of newly added albums ?
 	form.Add("rank", "0")
 	form.Add("year_rank", "0")
 	req, err := http.NewRequest("POST", postURL, strings.NewReader(form.Encode()))
