@@ -101,11 +101,9 @@ func parseXML(filename string) error {
 
 	counter := 0
 	for _, song := range file.Tracks {
-		if counter < 10 {
-			insertArtist(song)
-			insertAlbum(song)
-			fmt.Printf("%d - %s - %s - %s\n", song.Year, song.Name, song.Album, song.Artist)
-		}
+		insertArtist(song)
+		insertAlbum(song)
+		fmt.Printf("%d - %s - %s - %s\n", song.Year, song.Name, song.Album, song.Artist)
 		counter++
 	}
 	return nil
