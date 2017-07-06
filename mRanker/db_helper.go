@@ -154,7 +154,14 @@ func upsertAlbum(name string, artist string, year int, newRanking int, newYearRa
 		}
 		return
 	}
-	// New insertion
+	// New insertion - if no ranking is specified, it should be inserted last
+	if newRanking == 0 {
+		err := db.QueryRow("SELECT max(ranking) +1 FROM albums;").Scan(&newRanking)
+		if err != nil {
+			fmt.Println("Could not get max ranking")
+			return
+		}
+	}
 	_, err = db.Query("SELECT * FROM insert_album($1, $2, $3, $4);", year, name, artist, newRanking)
 	if err != nil {
 		fmt.Println("Could not insert album: ", err.Error())
@@ -169,4 +176,5 @@ func insertArtist(name string) {
 		fmt.Println("Could not insert artist: ", err.Error())
 		return
 	}
+	fmt.Println("successfully inserted artist !")
 }
