@@ -138,7 +138,7 @@ func upsertAlbum(name string, artist string, year int, newRanking int, newYearRa
 
 		// Ranking update
 		if newRanking != rank && newRanking > 0 {
-			_, err := db.Query("SELECT * FROM update_ranking($1, $2, $3)", id, rank, newRanking)
+			_, err := db.Exec("SELECT * FROM update_ranking($1, $2, $3)", id, rank, newRanking)
 			if err != nil {
 				fmt.Println("Could not update ranking: %v", err.Error())
 				return
@@ -146,7 +146,7 @@ func upsertAlbum(name string, artist string, year int, newRanking int, newYearRa
 		}
 		// Ranking update
 		if newYearRanking != yearRank && newYearRanking > 0 {
-			_, err := db.Query("SELECT * FROM update_year_ranking($1, $2, $3)", id, yearRank, newYearRanking)
+			_, err := db.Exec("SELECT * FROM update_year_ranking($1, $2, $3)", id, yearRank, newYearRanking)
 			if err != nil {
 				fmt.Println("Could not update year ranking: %v", err.Error())
 				return
@@ -162,7 +162,7 @@ func upsertAlbum(name string, artist string, year int, newRanking int, newYearRa
 			return
 		}
 	}
-	_, err = db.Query("SELECT * FROM insert_album($1, $2, $3, $4);", year, name, artist, newRanking)
+	_, err = db.Exec("SELECT * FROM insert_album($1, $2, $3, $4);", year, name, artist, newRanking)
 	if err != nil {
 		fmt.Println("Could not insert album: ", err.Error())
 		return
