@@ -6,9 +6,18 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
+	"net/url"
 	"os"
+	"strconv"
+	"strings"
 
 	"howett.net/plist"
+)
+
+const (
+	HOST = "localhost"
+	PORT = "8080"
 )
 
 type Song struct {
@@ -21,6 +30,54 @@ type Song struct {
 
 type File struct {
 	Tracks map[string]Song `plist:"Tracks"`
+}
+
+// call mRanker server to insert artist
+func insertArtist(song Song) {
+	postURL := fmt.Sprintf("http://%s:%s/artist/", HOST, PORT)
+	form := url.Values{}
+	form.Add("name", song.Artist)
+	req, err := http.NewRequest("POST", postURL, strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+	if err != nil {
+		log.Fatal("NewRequest: ", err)
+		return
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal("can't add artist: %v", err)
+		return
+	}
+	defer resp.Body.Close()
+	fmt.Println(resp.Status)
+}
+
+// call mRanker server to insert album
+func insertAlbum(song Song) {
+	postURL := fmt.Sprintf("http://%s:%s/album/", HOST, PORT)
+	form := url.Values{}
+	form.Add("name", song.Album)
+	form.Add("artist", song.Artist)
+	form.Add("year", strconv.Itoa(song.Year))
+	// What should be the ranking of newly added albums ?
+	form.Add("rank", "0")
+	form.Add("year_rank", "0")
+	req, err := http.NewRequest("POST", postURL, strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+	if err != nil {
+		log.Fatal("NewRequest: ", err)
+		return
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal("can't add artist: %v", err)
+		return
+	}
+	defer resp.Body.Close()
 }
 
 func parseXML(filename string) error {
@@ -42,7 +99,9 @@ func parseXML(filename string) error {
 	counter := 0
 	for _, song := range file.Tracks {
 		if counter < 10 {
-			fmt.Printf("%s - %s - %s\n", song.Name, song.Album, song.Artist)
+			insertArtist(song)
+			insertAlbum(song)
+			fmt.Printf("%d - %s - %s - %s\n", song.Year, song.Name, song.Album, song.Artist)
 		}
 		counter++
 	}
