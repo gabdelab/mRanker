@@ -99,12 +99,10 @@ func parseXML(filename string) error {
 	decoder := plist.NewDecoder(r)
 	decoder.Decode(&file)
 
-	counter := 0
 	for _, song := range file.Tracks {
 		insertArtist(song)
 		insertAlbum(song)
 		fmt.Printf("%d - %s - %s - %s\n", song.Year, song.Name, song.Album, song.Artist)
-		counter++
 	}
 	return nil
 }
