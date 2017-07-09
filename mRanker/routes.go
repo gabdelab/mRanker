@@ -48,7 +48,9 @@ func addAlbum(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Could not add album: %v", err.Error())
 		return
 	}
-	upsertAlbum(name, artist, year, ranking, yearRanking)
+	if err = upsertAlbum(name, artist, year, ranking, yearRanking); err != nil {
+		fmt.Println("Failed to upsert album: %s", err.Error())
+	}
 	http.Redirect(w, r, "http://localhost:8080/", 301)
 }
 

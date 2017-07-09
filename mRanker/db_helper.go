@@ -111,7 +111,7 @@ func listYearAlbums(year int) Albums {
                                   WHERE year=%d;`, year))
 }
 
-func upsertAlbum(name string, artist string, year int, newRanking int, newYearRanking int) {
+func upsertAlbum(name string, artist string, year int, newRanking int, newYearRanking int) error {
 	var rank int
 	var yearRank int
 	var id int
@@ -126,16 +126,25 @@ func upsertAlbum(name string, artist string, year int, newRanking int, newYearRa
                          WHERE artists.name=$1 AND albums.name=$2 AND year=$3;`,
 		artist, name, year).Scan(&id, &rank, &yearRank)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			// No existing row, this is an insertion
+			return insertAlbum(name, artist, year, newRanking, newYearRanking)
+		}
+		// System error
 		fmt.Println("Error while querying the DB: %v", err.Error())
-		return
+		return err
 	}
+	return updateAlbumRanking(id, rank, newRanking, yearRank, newYearRanking)
+}
 
+// Update album - if newRanking is 0, nothing is done
+func updateAlbumRanking(id, rank, newRanking, yearRank, newYearRanking int) error {
 	// Ranking update
 	if newRanking != rank && newRanking > 0 {
 		_, err := db.Exec("SELECT * FROM update_ranking($1, $2, $3)", id, rank, newRanking)
 		if err != nil {
 			fmt.Println("Could not update ranking: %v", err.Error())
-			return
+			return err
 		}
 	}
 
@@ -144,23 +153,27 @@ func upsertAlbum(name string, artist string, year int, newRanking int, newYearRa
 		_, err := db.Exec("SELECT * FROM update_year_ranking($1, $2, $3)", id, yearRank, newYearRanking)
 		if err != nil {
 			fmt.Println("Could not update year ranking: %v", err.Error())
-			return
+			return err
 		}
 	}
+	return nil
+}
 
+func insertAlbum(name string, artist string, year int, newRanking int, newYearRanking int) error {
 	// New insertion - if no ranking is specified, it should be inserted last
 	if newRanking == 0 {
 		err := db.QueryRow("SELECT max(ranking) + 1 FROM albums;").Scan(&newRanking)
 		if err != nil {
 			fmt.Println("Could not get max ranking")
-			return
+			return err
 		}
 	}
-	_, err = db.Exec("SELECT * FROM insert_album($1, $2, $3, $4);", year, name, artist, newRanking)
+	_, err := db.Exec("SELECT * FROM insert_album($1, $2, $3, $4);", year, name, artist, newRanking)
 	if err != nil {
 		fmt.Println("Could not insert album: ", err.Error())
-		return
+		return err
 	}
+	return nil
 }
 
 func insertArtist(name string) {
