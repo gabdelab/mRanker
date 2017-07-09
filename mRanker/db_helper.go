@@ -112,51 +112,45 @@ func listYearAlbums(year int) Albums {
 }
 
 func upsertAlbum(name string, artist string, year int, newRanking int, newYearRanking int) {
+	var rank int
+	var yearRank int
+	var id int
 
 	// Check whether this is an insertion or a ranking update
-	rows, err := db.Query(`SELECT
+	err := db.QueryRow(`SELECT
 												 	 albums.album_id as id,
 												 	 albums.ranking AS rank,
 												 	 albums.year_ranking AS yearRank
                          FROM albums JOIN artists
                          ON artists.artist_id=albums.artist_id
-                         WHERE artists.name=$1 AND albums.name=$2 AND year=$3;`, artist, name, year)
-	defer rows.Close()
+                         WHERE artists.name=$1 AND albums.name=$2 AND year=$3;`,
+		artist, name, year).Scan(&id, &rank, &yearRank)
 	if err != nil {
 		fmt.Println("Error while querying the DB: %v", err.Error())
 		return
 	}
-	for rows.Next() {
-		var rank int
-		var yearRank int
-		var id int
-		err = rows.Scan(&id, &rank, &yearRank)
+
+	// Ranking update
+	if newRanking != rank && newRanking > 0 {
+		_, err := db.Exec("SELECT * FROM update_ranking($1, $2, $3)", id, rank, newRanking)
 		if err != nil {
-			fmt.Println("Error while parsing row: %v", err.Error())
+			fmt.Println("Could not update ranking: %v", err.Error())
 			return
 		}
-
-		// Ranking update
-		if newRanking != rank && newRanking > 0 {
-			_, err := db.Exec("SELECT * FROM update_ranking($1, $2, $3)", id, rank, newRanking)
-			if err != nil {
-				fmt.Println("Could not update ranking: %v", err.Error())
-				return
-			}
-		}
-		// Ranking update
-		if newYearRanking != yearRank && newYearRanking > 0 {
-			_, err := db.Exec("SELECT * FROM update_year_ranking($1, $2, $3)", id, yearRank, newYearRanking)
-			if err != nil {
-				fmt.Println("Could not update year ranking: %v", err.Error())
-				return
-			}
-		}
-		return
 	}
+
+	// Year ranking update
+	if newYearRanking != yearRank && newYearRanking > 0 {
+		_, err := db.Exec("SELECT * FROM update_year_ranking($1, $2, $3)", id, yearRank, newYearRanking)
+		if err != nil {
+			fmt.Println("Could not update year ranking: %v", err.Error())
+			return
+		}
+	}
+
 	// New insertion - if no ranking is specified, it should be inserted last
 	if newRanking == 0 {
-		err := db.QueryRow("SELECT max(ranking) +1 FROM albums;").Scan(&newRanking)
+		err := db.QueryRow("SELECT max(ranking) + 1 FROM albums;").Scan(&newRanking)
 		if err != nil {
 			fmt.Println("Could not get max ranking")
 			return
