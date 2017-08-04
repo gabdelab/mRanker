@@ -13,7 +13,7 @@
                     {{ range .Albums }}
                         <li name={{.Name}} artist={{.Artist}} year={{.Year}} allRanking='{{.AllRanking}}'>
                             <a><strong>{{.Name}}</strong>
-                            {{.Artist}} - {{.AllRanking}}</a>
+                            {{.Artist.Name}} - {{.AllRanking}}</a>
                         </li>
                     {{ end }}
                 </ol>
@@ -65,7 +65,7 @@
                             <span>Artiste <span class="required">*</span></span>
                             <select name="artist" form=add_album_form class="select-field">
                                 {{range .Artists}}
-                                    <option value={{.}}>{{.}}</option>
+                                    <option value={{.Name}}>{{.Name}}</option>
                                 {{end}}
                             </select>
                         </label>

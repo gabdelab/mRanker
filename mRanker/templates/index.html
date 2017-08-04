@@ -11,9 +11,9 @@
             <div id=results>
                 <ol class="sortable" id="sortable">
                     {{ range .Albums }}
-                        <li name='{{.Name}}' artist='{{.Artist}}' year='{{.Year}}'>
+                        <li name='{{.Name}}' artist='{{.Artist.Name}}' year='{{.Year}}'>
                             <a href='http://localhost:8080?year={{.Year}}'>
-                                <strong>{{.Name}}</strong>{{.Artist}}
+                                <strong>{{.Name}}</strong>{{.Artist.Name}}
                                 <span style="float:right" >{{.Year}}</span>
                             </a>
                         </li>
@@ -67,7 +67,7 @@
                             <span>Artiste <span class="required">*</span></span>
                             <select name="artist" form=add_album_form class="select-field">
                                 {{range .Artists}}
-                                    <option value={{.}}>{{.}}</option>
+                                    <option value={{.Name}}>{{.Name}}</option>
                                 {{end}}
                             </select>
                         </label>

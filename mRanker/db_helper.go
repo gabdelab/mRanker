@@ -19,11 +19,15 @@ type Album struct {
 	Artist     Artist
 	Ranking    int
 	AllRanking int
+	ID         int
 }
 
 type Year int
 
-type Artist string
+type Artist struct {
+	Name string
+	ID   int
+}
 
 type Albums []Album
 
@@ -47,7 +51,7 @@ func closeDB() {
 
 func listArtists() Artists {
 	var artists Artists
-	rows, err := db.Query(`SELECT name FROM artists ORDER BY name;`)
+	rows, err := db.Query(`SELECT name, artist_id FROM artists ORDER BY name;`)
 	defer rows.Close()
 	if err != nil {
 		fmt.Println("Error while querying the DB: %v", err.Error())
@@ -55,11 +59,12 @@ func listArtists() Artists {
 	}
 	for rows.Next() {
 		var name string
-		if err = rows.Scan(&name); err != nil {
+		var id int
+		if err = rows.Scan(&name, &id); err != nil {
 			fmt.Println("Error while parsing row: %v", err.Error())
 			return nil
 		}
-		artists = append(artists, Artist(name))
+		artists = append(artists, Artist{Name: name, ID: id})
 	}
 	return artists
 }
@@ -75,15 +80,17 @@ func queryAlbums(query string) Albums {
 	for rows.Next() {
 		var album string
 		var year int
-		var artist Artist
+		var artist string
+		var artistID int
 		var ranking int
 		var allRanking int
-		err = rows.Scan(&album, &year, &artist, &ranking, &allRanking)
+		var id int
+		err = rows.Scan(&album, &year, &artist, &artistID, &ranking, &allRanking, &id)
 		if err != nil {
 			fmt.Println("Error while parsing row: %v", err.Error())
 			return nil
 		}
-		albums = append(albums, Album{Year(year), album, artist, ranking, allRanking})
+		albums = append(albums, Album{Year(year), album, Artist{artist, artistID}, ranking, allRanking, id})
 	}
 
 	return albums
@@ -93,8 +100,10 @@ func listAlbums() Albums {
 	return queryAlbums(`SELECT albums.name AS album,
                              year,
                              artists.name AS artist,
+                             artists.artist_id AS artistID,
                              ranking,
-                             ranking AS allRanking
+                             ranking AS allRanking,
+                             albums.album_id
                       FROM albums JOIN artists
                       ON artists.artist_id=albums.artist_id
                       ORDER BY ranking ASC;`)
@@ -104,8 +113,10 @@ func listYearAlbums(year int) Albums {
 	return queryAlbums(fmt.Sprintf(`SELECT albums.name AS album,
                                          year,
                                          artists.name AS artist,
+                                         artists.artist_id AS artistID,
                                          rank() OVER (ORDER BY year_ranking ASC) AS ranking,
-                                         ranking as allRanking
+                                         ranking as allRanking,
+                                         albums.album_id
                                   FROM albums JOIN artists
                                   ON artists.artist_id=albums.artist_id
                                   WHERE year=%d;`, year))
