@@ -182,3 +182,13 @@ func insertArtist(name string) {
 	}
 	fmt.Println("successfully inserted artist !")
 }
+
+func removeAlbum(album_id int) error {
+	_, err := db.Exec("SELECT delete_album($1);", album_id)
+	if err != nil {
+		fmt.Println("could not delete album: %s", err.Error())
+		return err
+	}
+	fmt.Println("successfully deleted album %d", album_id)
+	return nil
+}

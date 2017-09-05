@@ -29,7 +29,14 @@ CREATE OR REPLACE FUNCTION insert_album(year int, name text, artist text, rankin
     $2,
     $4
   );
-  /*By default, a new insertion has the highest year_ranking*/
+$$ LANGUAGE SQL;
+
+CREATE OR REPLACE FUNCTION delete_album(album_id int) RETURNS void AS $$
+  WITH rank AS
+    (DELETE FROM albums WHERE album_id=$1 RETURNING ranking)
+  UPDATE albums
+    SET ranking = ranking - 1
+    WHERE ranking > (SELECT ranking FROM rank);
 $$ LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION update_ranking(album_id int, old_ranking int, new_ranking int) RETURNS void AS $$

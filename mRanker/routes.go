@@ -46,7 +46,20 @@ func addAlbum(w http.ResponseWriter, r *http.Request) {
 	if err = upsertAlbum(name, artist, year, ranking); err != nil {
 		fmt.Println("Failed to upsert album: %s", err.Error())
 	}
-	http.Redirect(w, r, "http://localhost:8080/", 301)
+	http.Redirect(w, r, fmt.Sprintf("http://localhost:8080/?year=%d", year), 301)
+}
+
+func deleteAlbum(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	album_id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		fmt.Println("could not delete album: %s", err.Error())
+		return
+	}
+	if err = removeAlbum(album_id); err != nil {
+		fmt.Println("failed to delete album: %s", err.Error())
+	}
+	http.Redirect(w, r, "http://localhost:8080", 301)
 }
 
 func addArtist(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +72,7 @@ func addRoutes() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", displayAlbums).Methods("GET")
 	router.HandleFunc("/album/", addAlbum).Methods("POST")
+	router.HandleFunc("/album/{id}", deleteAlbum).Methods("DELETE")
 	router.HandleFunc("/artist/", addArtist).Methods("POST")
 	return router
 }
