@@ -34,7 +34,7 @@
                           $year = ui.item.attr('year');
                           // POST to /albums with the given values
                           $.post('http://localhost:8080/album/',
-                                 { name: $name, year: $year, artist: $artist, rank: $rank, year_rank: 0},
+                                 { name: $name, year: $year, artist: $artist, rank: $rank},
                                  function(data){
                                     location.reload();
                                 });
@@ -75,7 +75,6 @@
                             <span>Année <span class="required">*</span></span>
                             <input type=text class=input-field name=year value="" />
                         </label>
-                        <input type=hidden class=input-field name=year_rank value=0 />
                         <label for="rank">
                             <span>Rang <span class="required">*</span></span>
                             <input type=text class=input-field name=rank value="" />

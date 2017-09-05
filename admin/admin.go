@@ -66,7 +66,6 @@ func insertAlbum(song Song) {
 	form.Add("artist", song.Artist)
 	form.Add("year", strconv.Itoa(song.Year))
 	form.Add("rank", "0")
-	form.Add("year_rank", "0")
 	req, err := http.NewRequest("POST", postURL, strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 	if err != nil {

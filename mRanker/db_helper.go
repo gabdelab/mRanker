@@ -14,12 +14,11 @@ type Results struct {
 }
 
 type Album struct {
-	Year       Year
-	Name       string
-	Artist     Artist
-	Ranking    int
-	AllRanking int
-	ID         int
+	Year    Year
+	Name    string
+	Artist  Artist
+	Ranking int
+	ID      int
 }
 
 type Year int
@@ -83,14 +82,13 @@ func queryAlbums(query string) Albums {
 		var artist string
 		var artistID int
 		var ranking int
-		var allRanking int
 		var id int
-		err = rows.Scan(&album, &year, &artist, &artistID, &ranking, &allRanking, &id)
+		err = rows.Scan(&album, &year, &artist, &artistID, &ranking, &id)
 		if err != nil {
 			fmt.Println("Error while parsing row: %v", err.Error())
 			return nil
 		}
-		albums = append(albums, Album{Year(year), album, Artist{artist, artistID}, ranking, allRanking, id})
+		albums = append(albums, Album{Year(year), album, Artist{artist, artistID}, ranking, id})
 	}
 
 	return albums
@@ -102,7 +100,6 @@ func listAlbums() Albums {
                              artists.name AS artist,
                              artists.artist_id AS artistID,
                              ranking,
-                             ranking AS allRanking,
                              albums.album_id
                       FROM albums JOIN artists
                       ON artists.artist_id=albums.artist_id
@@ -114,42 +111,40 @@ func listYearAlbums(year int) Albums {
                                          year,
                                          artists.name AS artist,
                                          artists.artist_id AS artistID,
-                                         rank() OVER (ORDER BY year_ranking ASC) AS ranking,
-                                         ranking as allRanking,
+                                         ranking,
                                          albums.album_id
                                   FROM albums JOIN artists
                                   ON artists.artist_id=albums.artist_id
-                                  WHERE year=%d;`, year))
+                                  WHERE year=%d
+                                  ORDER BY ranking ASC;`, year))
 }
 
-func upsertAlbum(name string, artist string, year int, newRanking int, newYearRanking int) error {
+func upsertAlbum(name string, artist string, year int, newRanking int) error {
 	var rank int
-	var yearRank int
 	var id int
 
 	// Check whether this is an insertion or a ranking update
 	err := db.QueryRow(`SELECT
 												 	 albums.album_id as id,
-												 	 albums.ranking AS rank,
-												 	 albums.year_ranking AS yearRank
+												 	 albums.ranking AS rank
                          FROM albums JOIN artists
                          ON artists.artist_id=albums.artist_id
                          WHERE artists.name=$1 AND albums.name=$2 AND year=$3;`,
-		artist, name, year).Scan(&id, &rank, &yearRank)
+		artist, name, year).Scan(&id, &rank)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// No existing row, this is an insertion
-			return insertAlbum(name, artist, year, newRanking, newYearRanking)
+			return insertAlbum(name, artist, year, newRanking)
 		}
 		// System error
 		fmt.Println("Error while querying the DB: %v", err.Error())
 		return err
 	}
-	return updateAlbumRanking(id, rank, newRanking, yearRank, newYearRanking)
+	return updateAlbumRanking(id, rank, newRanking)
 }
 
 // Update album - if newRanking is 0, nothing is done
-func updateAlbumRanking(id, rank, newRanking, yearRank, newYearRanking int) error {
+func updateAlbumRanking(id, rank, newRanking int) error {
 	// Ranking update
 	if newRanking != rank && newRanking > 0 {
 		_, err := db.Exec("SELECT * FROM update_ranking($1, $2, $3)", id, rank, newRanking)
@@ -158,19 +153,10 @@ func updateAlbumRanking(id, rank, newRanking, yearRank, newYearRanking int) erro
 			return err
 		}
 	}
-
-	// Year ranking update
-	if newYearRanking != yearRank && newYearRanking > 0 {
-		_, err := db.Exec("SELECT * FROM update_year_ranking($1, $2, $3)", id, yearRank, newYearRanking)
-		if err != nil {
-			fmt.Println("Could not update year ranking: %v", err.Error())
-			return err
-		}
-	}
 	return nil
 }
 
-func insertAlbum(name string, artist string, year int, newRanking int, newYearRanking int) error {
+func insertAlbum(name string, artist string, year int, newRanking int) error {
 	// New insertion - if no ranking is specified, it should be inserted last
 	if newRanking == 0 {
 		err := db.QueryRow("SELECT max(ranking) + 1 FROM albums;").Scan(&newRanking)

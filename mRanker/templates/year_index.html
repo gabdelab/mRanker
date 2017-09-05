@@ -11,9 +11,9 @@
             <div id=results>
                 <ol class="sortable" id="sortable">
                     {{ range .Albums }}
-                        <li name={{.Name}} artist={{.Artist}} year={{.Year}} allRanking='{{.AllRanking}}'>
+                        <li name={{.Name}} artist={{.Artist.Name}} year={{.Year}} ranking='{{.Ranking}}'>
                             <a><strong>{{.Name}}</strong>
-                            {{.Artist.Name}} - {{.AllRanking}}</a>
+                            {{.Artist.Name}} - {{.Ranking}}</a>
                         </li>
                     {{ end }}
                 </ol>
@@ -26,13 +26,13 @@
                           console.log(ui.item.index());
                         },
                         stop: function(event, ui) {
-                          $year_rank = ui.item.index() + 1;
+                          $new_rank = $(document.getElementById("sortable").getElementsByTagName("li")[ui.item.index() + 1]).attr("ranking");
                           $name = ui.item.attr('name');
                           $artist = ui.item.attr('artist');
                           $year = ui.item.attr('year');
                           // POST to /albums with the given values
                           $.post('http://localhost:8080/album/',
-                                 { name: $name, year: $year, artist: $artist, rank: 0, year_rank: $year_rank},
+                                 { name: $name, year: $year, artist: $artist, rank: $new_rank},
                                  function(data){
                                     location.reload();
                                 });
@@ -71,7 +71,6 @@
                         </label>
                         <label for="year">
                         <input type=hidden class=input-field name=year value={{.Year}} />
-                        <input type=hidden class=input-field name=year_rank value=0 />
                         </label>
                         <label for="rank">
                             <span>Rang global<span class="required">*</span></span>

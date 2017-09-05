@@ -38,17 +38,12 @@ func addAlbum(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Could not add album: %v", err.Error())
 		return
 	}
-	yearRanking, err := strconv.Atoi(r.FormValue("year_rank"))
-	if err != nil {
-		fmt.Println("Could not add album: %v", err.Error())
-		return
-	}
 	year, err := strconv.Atoi(r.FormValue("year"))
 	if err != nil {
 		fmt.Println("Could not add album: %v", err.Error())
 		return
 	}
-	if err = upsertAlbum(name, artist, year, ranking, yearRanking); err != nil {
+	if err = upsertAlbum(name, artist, year, ranking); err != nil {
 		fmt.Println("Failed to upsert album: %s", err.Error())
 	}
 	http.Redirect(w, r, "http://localhost:8080/", 301)
