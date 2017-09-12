@@ -103,7 +103,7 @@ func listAlbums() Albums {
                              albums.album_id
                       FROM albums JOIN artists
                       ON artists.artist_id=albums.artist_id
-                      ORDER BY ranking ASC;`)
+                      ORDER BY ranking ASC LIMIT 100;`)
 }
 
 func listYearAlbums(year int) Albums {
