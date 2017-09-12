@@ -1,5 +1,5 @@
-hash: d17db87c2b932f6aaa6550968a9263ce98deecf881dea86937ef53cc548221e1
-updated: 2017-07-02T21:25:30.231246226+02:00
+hash: eb4e3271e45404489018cd2be3b968f7f3fa164e218d074e4d2a69a51a04c7ae
+updated: 2017-09-12T21:35:11.274138583+02:00
 imports:
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
@@ -9,6 +9,8 @@ imports:
   version: 50761b0867bd1d9d069276790bcd4a3bccf2324a
   subpackages:
   - oid
+- name: gopkg.in/yaml.v2
+  version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
 - name: howett.net/plist
   version: 2f847ea62b17703c861484a09f0e5841328a2cb9
 testImports: []

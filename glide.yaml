@@ -3,3 +3,4 @@ import:
   - package: github.com/gorilla/mux
   - package: github.com/lib/pq
   - package: howett.net/plist
+  - package: gopkg.in/yaml.v2

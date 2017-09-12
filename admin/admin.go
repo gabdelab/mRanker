@@ -9,9 +9,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
+	"gopkg.in/yaml.v2"
 	"howett.net/plist"
 )
 
@@ -32,6 +34,8 @@ type Song struct {
 type File struct {
 	Tracks map[string]Song `plist:"Tracks"`
 }
+
+type BlacklistedAlbum string
 
 // call mRanker server to insert artist
 func insertArtist(song Song) {
@@ -57,9 +61,11 @@ func insertArtist(song Song) {
 // call mRanker server to insert album
 func insertAlbum(song Song) {
 	if song.Compilation {
+		fmt.Println("not adding compilation", song.Album)
 		// Don't insert compilations
 		return
 	}
+	// Is the song blacklisted ?
 	postURL := fmt.Sprintf("http://%s:%s/album/", HOST, PORT)
 	form := url.Values{}
 	form.Add("name", song.Album)
@@ -98,10 +104,30 @@ func parseXML(filename string) error {
 	decoder := plist.NewDecoder(r)
 	decoder.Decode(&file)
 
+	var blacklisted []string
+	yamlFile, err := ioutil.ReadFile("blacklist.yml")
+	if err != nil {
+		log.Fatal("can't parse blacklisted file !")
+	}
+	err = yaml.Unmarshal([]byte(yamlFile), &blacklisted)
+	if err != nil {
+		log.Fatal("can't parse blacklisted file !")
+	}
+
 	for _, song := range file.Tracks {
-		insertArtist(song)
-		insertAlbum(song)
-		fmt.Printf("%d - %s - %s - %s\n", song.Year, song.Name, song.Album, song.Artist)
+		isBlacklisted := false
+		for _, blacklistedAlbum := range blacklisted {
+			if ok, _ := regexp.MatchString(blacklistedAlbum, song.Album); ok {
+				fmt.Println("blacklisting", song.Album)
+				isBlacklisted = true
+				continue
+			}
+		}
+		if !isBlacklisted {
+			insertArtist(song)
+			insertAlbum(song)
+			fmt.Printf("%d - %s - %s - %s\n", song.Year, song.Name, song.Album, song.Artist)
+		}
 	}
 	return nil
 }
