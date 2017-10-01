@@ -159,7 +159,7 @@ func updateAlbumRanking(id, rank, newRanking int) error {
 func insertAlbum(name string, artist string, year int, newRanking int) error {
 	// New insertion - if no ranking is specified, it should be inserted last
 	if newRanking == 0 {
-		err := db.QueryRow("SELECT max(ranking) + 1 FROM albums;").Scan(&newRanking)
+		err := db.QueryRow("SELECT coalesce(max(ranking) + 1, 1) FROM albums;").Scan(&newRanking)
 		if err != nil {
 			fmt.Println("Could not get max ranking")
 			return err
