@@ -16,14 +16,19 @@ func displayAlbums(w http.ResponseWriter, r *http.Request) {
 	year, err := strconv.Atoi(r.FormValue("year"))
 	if err != nil {
 		albums = listAlbums()
-		templateFile = "templates/index.html"
+		templateFile = "index.html"
 	} else {
 		albums = listYearAlbums(year)
-		templateFile = "templates/year_index.html"
+		templateFile = "year_index.html"
 	}
 	artists = listArtists()
-	t, _ := template.ParseFiles(templateFile)
-
+	t, err := template.New(templateFile).Funcs(template.FuncMap{
+		"next":     func(i Year) int { return int(i) + 1 },
+		"previous": func(i Year) int { return int(i) - 1 },
+	}).ParseGlob("templates/*.html")
+	if err != nil {
+		fmt.Println("could not parse template: %v", err.Error())
+	}
 	results := Results{Artists: artists, Albums: albums, Year: Year(year)}
 	if err := t.Execute(w, &results); err != nil {
 		fmt.Println("Could not display albums: %v", err.Error())

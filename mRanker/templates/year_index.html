@@ -79,6 +79,12 @@
                         <label><span>&nbsp;</span><input type="submit" value="Submit" /></label>
                     </form>
                 </div>
+
+                <div class=navigate>
+                    <a href="http://localhost:8080/?year={{previous .Year}}">{{ previous .Year }}</a>
+                    <a href="http://localhost:8080/?year={{next .Year}}">{{ next .Year }}</a>
+                </div>
+
                 <div id=back class=back>
                     <a href="http://localhost:8080">Retour aux résultats</a>
                 </div>
